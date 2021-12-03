@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace azure_functions_sql_bindings_sample
@@ -14,6 +18,9 @@ namespace azure_functions_sql_bindings_sample
     public static class WriteOneRecord
     {
         [FunctionName("WriteOneRecord")]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(ToDoItem), Description = "The created response")]
         public static IActionResult Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = "addtodo")] HttpRequest req,
             ILogger log,
@@ -30,6 +37,9 @@ namespace azure_functions_sql_bindings_sample
         }
 
         [FunctionName("WriteRecordsAsync")]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "text/plain", bodyType: typeof(string), Description = "The created response")]
         public static async Task<IActionResult> Run2(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "addtodo-asynccollector")] HttpRequest req,
             ILogger log,
