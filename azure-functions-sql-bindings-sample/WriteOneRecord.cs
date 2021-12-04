@@ -60,5 +60,28 @@ namespace azure_functions_sql_bindings_sample
 
             return new CreatedResult($"/api/addtodo-asynccollector", "done");
         }
+
+        [FunctionName("WriteRecordsSync")]
+        [OpenApiOperation(operationId: "Run", tags: new[] { "name" })]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "code", In = OpenApiSecurityLocationType.Query)]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "text/plain", bodyType: typeof(string), Description = "The created response")]
+        public static IActionResult Run3(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "addtodo-ccollector")] HttpRequest req,
+            ILogger log,
+            [Sql("dbo.ToDo", ConnectionStringSetting = "SqlConnectionString")] ICollector<ToDoItem> newItems)
+        {
+            newItems.Add(new ToDoItem
+            {
+                Id = DateTime.UtcNow.Millisecond.ToString(),
+                Description = DateTime.UtcNow.ToString()
+            });
+            newItems.Add(new ToDoItem
+            {
+                Id = (DateTime.UtcNow.Millisecond + 100).ToString(),
+                Description = DateTime.UtcNow.AddDays(1).ToString()
+            });
+
+            return new CreatedResult($"/api/addtodo-collector", "done");
+        }
     }
 }
